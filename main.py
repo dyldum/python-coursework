@@ -3,6 +3,7 @@ from tkinter import ttk,messagebox
 
 # TODO: main window
 
+
 class MainPage(tk.Frame):
     def __init__(self, parent_window, controller):
         super().__init__(parent_window, bg = "#E8EEFF")
@@ -109,7 +110,36 @@ class InputPage(tk.Frame):
 
 # TODO: boundary descriptions, setting algorithms, final run function
 
+    def set_algorithm(self, algorithm_name):
+        self.algorithm_name = algorithm_name
+        self.title_label.config(text = algorithm_name)
+        self.description_label.config(text = self.get_description(algorithm_name))
+        self.input_box.delete(0,tk.END)
+        self.output.delete("1.0",tk.END)
+
+    def get_description(self, algorithm):
+         
+         descriptions = {
+            "RSA Encryption / Decryption": "Enter a message to encrypt or decrypt.\nYou may later add key input fields.",
+            "Fibonacci (Dynamic Programming)": "Enter an integer N. The program will compute the Nth Fibonacci number using dynamic programming.",
+            "Selection Sort": "Enter numbers separated by commas.\nExample: 5, 2, 1, 9, 4.",
+            "Bubble Sort": "Enter numbers separated by commas.\nExample: 10, 3, 8, 6.",
+            "Merge Sort (Divide & Conquer)": "Enter numbers separated by commas.\nExample: 7, 2, 5, 3, 9.",
+            "Randomised Card Shuffle": "No input required. Press Run to shuffle a standard deck.",
+            "Factorial (Recursion)": "Enter a single integer. Example: 6.",
+            "Search (Largest/Smallest/Mode/Median/IQFs)": "Enter numbers separated by commas.\nExample: 4, 8, 1, 3, 3, 9.",
+            "Palindrome Substring Counter (DP Memoization)": "Enter a string.\nExample: 'racecar'.",
+        }
+         return descriptions.get(algorithm,"")
+    
+    def run_algorithm(self):
+        user_input = self.input_box.get()
+        # TODO: create patterns first
+        
+
 # TODO: create app (join main/input pages) allow navigation
+
+
 
 # TODO: startegy pattern
 
