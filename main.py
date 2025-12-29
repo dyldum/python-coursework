@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk,messagebox
+import math
+import random
 
 # TODO: main window
 
@@ -30,7 +32,7 @@ class MainPage(tk.Frame):
         algorithms = [
             "RSA Encryption / Decryption",
             "Fibonacci (Dynamic Programming)",
-            "Selection sort",
+            "Selection Sort",
             "Merge Sort",
             "Card Shuffe",
             "Factorial (Recursion)",
@@ -40,20 +42,26 @@ class MainPage(tk.Frame):
 
         # assigning a button for each item in list *** change colours later
         for algorithm in algorithms:
+
+            def make_command(alg):
+                def cmd():
+                    self.open_input_page(alg)
+                return cmd
+    
             tk.Button(
-                self,
-                text = algorithm,
-                font = ("Arial", 13, "bold"),
-                fg="white",
-                bg = "#1E3A8A",
-                activeforeground="white",
-                activebackground="#27428F",
-                width=40,
-                pady=8,
-                borderwidth=0,
-                highlightthickness=0,
-                command=lambda a=algorithm: self.open_input_page(a)
-            ).pack(pady=5)
+            self,
+            text = algorithm,
+            font = ("Arial", 13, "bold"),
+            fg="white",
+            bg = "#1E3A8A",
+            activeforeground="white",
+            activebackground="#27428F",
+            width=40,
+            pady=8,
+            borderwidth=0,
+            highlightthickness=0,
+            command=make_command(algorithm)
+        ).pack(pady=5)
             
     # controller switches frames to the input page when button is clicked
     def open_input_page(self, algorithm_name):
@@ -70,7 +78,7 @@ class InputPage(tk.Frame):
         self.controller = controller
         self.algorithm_name = ""
 
-        #more visual aspects
+        # visual aspects
         self.title_label = tk.Label(
             self, text="", font=("Arial", 22, "bold"),
             bg="#1E40AF", fg="white", pady=15
@@ -121,6 +129,28 @@ class InputPage(tk.Frame):
         )
         self.output.pack(pady=10)
 
+        # TODO: back button
+        tk.Button(
+            self,
+            text="Back to Menu",
+            font=("Arial", 12, "bold"),
+            bg="#64748B",
+            fg="white",
+            activebackground="#475569",
+            activeforeground="white",
+            width=20,
+            command=self.go_back
+        ).pack(pady=10)
+
+    def go_back(self):
+        # clears fields after return to menu
+        self.input_box.delete(0, tk.END)
+        self.output.delete("1.0", tk.END)
+        self.controller.show(MainPage)
+
+
+
+
 
 # TODO: boundary descriptions, setting algorithms, final run function
 
@@ -133,24 +163,63 @@ class InputPage(tk.Frame):
 
     def get_description(self, algorithm):
          
-         # dummy descriptions for input page *** CREATE exception handling and dont rely on user input to be correct
-         descriptions = {
-            "RSA Encryption / Decryption": "Enter a message to encrypt or decrypt.",
-            "Fibonacci (Dynamic Programming)": "Enter an integer N. The program will compute the Nth Fibonacci number.",
-            "Selection Sort": "Enter numbers separated by commas.\nExample: 5, 2, 1, 9, 4.",
-            "Bubble Sort": "Enter numbers separated by commas.\nExample: 10, 3, 8, 6.",
-            "Merge Sort (Divide & Conquer)": "Enter numbers separated by commas.\nExample: 7, 2, 5, 3, 9.",
-            "Randomised Card Shuffle": "No input required. Press Run to shuffle a standard deck.",
-            "Factorial (Recursion)": "Enter a single integer. Example: 6.",
-            "Search (Largest/Smallest/Mode/Median/IQFs)": "Enter numbers separated by commas.\nExample: 4, 8, 1, 3, 3, 9.",
-            "Palindrome Substring Counter (DP Memoization)": "Enter a string.\nExample: 'racecar'.",
-        }
-         return descriptions.get(algorithm,"")
+         # dummy descriptions for input page *TODO: exception handling and dont rely on user input to be correct
+        descriptions = {
+            "RSA Encryption / Decryption":
+                "Enter a message to encrypt or decrypt.\n"
+                "Use:\n"
+                "  enc:Hello world\n"
+                "  dec:123,456;n=<n>;d=<d>\n\n"
+                "Tip: run enc:... first, then copy the dec:... line it prints.",
+
+            "Fibonacci (Dynamic Programming)":
+                "Enter an integer N.\n"
+                "The program will compute the Nth Fibonacci number using dynamic programming.",
+
+            "Selection sort":
+                "Enter numbers separated by commas.\n"
+                "Example: 5, 2, 1, 9, 4.",
+
+            "Merge Sort":
+                "Enter numbers separated by commas.\n"
+                "Example: 7, 2, 5, 3, 9.\n"
+                "Uses divide and conquer.",
+
+            "Card Shuffe":
+                "No input required.\n"
+                "Press Run to shuffle a standard deck of cards.",
+
+            "Factorial (Recursion)":
+                "Enter a single integer.\n"
+                "Example: 6.",
+
+            "Stats search (Range, Median, Mode, IQF'S)":
+                "Enter numbers separated by commas.\n"
+                "Example: 4, 8, 1, 3, 3, 9.\n\n"
+                "Returns range, median, mode, Q1 and Q3.",
+
+            "Palindrome Substring Counter":
+                "Enter a string.\n"
+                "Example: racecar.\n"
+                "Counts all palindromic substrings using memoization.",
+            }
+        return descriptions.get(algorithm,"")
     
     # test run, LINK with design pattern when finished
     def run_algorithm(self):
         self.output.delete("1.0", tk.END)
+
+        user_input = self.input_box.get()
+
+        if self.algorithm_name == "RSA Encryption / Decryption":
+            rsa = RSAEncryptionStrategy()
+            result = rsa.execute(user_input)
+            self.output.insert("1.0", result)
+            return
+
+        # Keep placeholder for everything else until you implement them
         self.output.insert("1.0", f"[INFO] Algorithm '{self.algorithm_name}' not implemented yet.\n")
+
        
 # uses MainPage and creates a container to switch frames to InputPage
 class App(tk.Tk):
@@ -175,17 +244,197 @@ class App(tk.Tk):
     def show(self, frame):
         self.frames[frame].tkraise()
 
-        #####################             back button?
-        
-
-
-
-        
-
-
 
 # TODO: startegy pattern
 
+class AlgorithmStrategy:
+    def execute(self, input_data):
+        raise NotImplementedError()
+
+
+class RSAEncryptionStrategy(AlgorithmStrategy):
+
+    def execute(self, input_data: str) -> str:
+        if not isinstance(input_data, str):
+            return "[RSA ERROR] Input must be a string."
+
+        text = input_data.strip()
+        if not text:
+            return "[RSA ERROR] Empty input."
+
+        # encryption
+        if text.lower().startswith("enc:"):
+            message = text[4:].lstrip()
+            if not message:
+                return "[RSA ERROR] Need a message after 'enc:'."
+
+            # make new keys each time
+            (e, n), (d, n2) = self._generate_keypair()
+            
+            cipher = self._encrypt_message(message, e, n)
+
+            cipher_str = ",".join(str(x) for x in cipher)
+            return (
+                "[RSA ENCRYPT]\n"
+                f"Plaintext: {message}\n\n"
+                f"Cipher (copy this): {cipher_str}\n\n"
+                "Public key:\n"
+                f"  e={e}\n  n={n}\n\n"
+                "Private key (for decrypt):\n"
+                f"  d={d}\n  n={n}\n\n"
+                "To decrypt, paste:\n"
+                f"dec:{cipher_str};n={n};d={d}"
+            )
+
+        # decryption
+        if text.lower().startswith("dec:"):
+            try:
+                cipher_part, n, d = self._parse_decrypt_input(text)
+                plain = self._decrypt_message(cipher_part, d, n)
+                return (
+                    "[RSA DECRYPT]\n"
+                    f"Plaintext: {plain}"
+                )
+            except ValueError as ex:
+                return f"[RSA ERROR] {ex}"
+
+        return (
+            "[RSA INFO]\n"
+            "Format:\n"
+            "  enc:Hello world\n"
+            "  dec:123,456,789;n=<n>;d=<d>\n"
+        )
+
+    def _parse_decrypt_input(self, text: str):
+        # parse the decrypt string to extract cipher, n, and d
+        # expected format: dec:<c1,c2,...>;n=<n>;d=<d>
+        rest = text[4:].strip()
+        parts = [p.strip() for p in rest.split(";") if p.strip()]
+        if len(parts) < 3:
+            raise ValueError("format should be: dec:<cipher>;n=<n>;d=<d>")
+        cipher_part = parts[0]
+        n_param = None
+        d_param = None
+        
+        # find the n and d parameters in the parts
+        for p in parts[1:]:
+            if p.lower().startswith("n="):
+                n_param = p
+            elif p.lower().startswith("d="):
+                d_param = p
+
+        if not n_param or not d_param:
+            raise ValueError("need both n=<...> and d=<...>")
+
+        # convert strings to integers for the cipher values and keys
+        try:
+            cipher = [int(x.strip()) for x in cipher_part.split(",") if x.strip()]
+            n = int(n_param.split("=")[1].strip())
+            d = int(d_param.split("=")[1].strip())
+        except Exception as e:
+            raise ValueError(f"error parsing input: {e}")
+
+        if not cipher:
+            raise ValueError("cipher is empty")
+        if n <= 0 or d <= 0:
+            raise ValueError("n and d must be positive")
+
+        return cipher, n, d
+
+    def _encrypt_message(self, message: str, e: int, n: int):
+        # using ord() to get ASCII value, then apply RSA: c = m^e mod n
+        cipher = []
+        for ch in message:
+            m = ord(ch)
+            if m >= n:
+                raise ValueError("key too small, try shorter message or it'll break")
+            cipher.append(pow(m, e, n))
+        return cipher
+
+    def _decrypt_message(self, cipher_list, d: int, n: int) -> str:
+        # reverse the encryption using the private key
+        # decrypt each number back to a character using: m = c^d mod n
+        chars = []
+        for c in cipher_list:
+            m = pow(c, d, n)
+            chars.append(chr(m))
+        return "".join(chars)
+
+    def _generate_keypair(self):
+        # RSA needs two large primes p and q
+        # keeping them small (1000-10000) so it doesn't take long to find primes
+        p = self._find_prime(1000, 10000)
+        q = self._find_prime(1000, 10000)
+        while q == p:
+            q = self._find_prime(1000, 10000)
+
+        # n is the modulus for both keys
+        n = p * q
+
+        # phi is Euler's totient - needed to find d
+        phi = (p-1) * (q-1)
+
+        # e is the public exponent - 65537 is standard
+        # needs to be coprime with phi (gcd = 1)
+        e = 65537
+
+        if math.gcd(e, phi) != 1:
+            # fall back to finding a small one that works
+            e = 3
+            while math.gcd(e,phi) != 1:
+                e += 2
+
+        # d is the private exponent 
+        d = self._mod_inverse(e, phi)
+        return (e, n), (d, n)
+
+    def _mod_inverse(self, a, m):
+        # extended euclidean algorithm (inspiration - geeksforgeeks)
+        m0 = m
+        x0 = 0
+        x1 = 1
+
+        if m == 1:
+            return 0
+
+        while a > 1:
+            q = a // m
+            m, a = a % m, m
+            x0, x1 = x1 - q * x0, x0
+
+        if x1 < 0:
+            x1 += m0
+
+        return x1
+
+    def _find_prime(self, min_val, max_val):
+        # keeps trying generated random numbers until it finds one that's prime
+        while True:
+            num = random.randint(min_val, max_val)
+            # print(f"Trying {num}... (attempt {attempts})")
+            # if num< minv_val
+            # continue
+            if num % 2 == 0:
+                num += 1  # primes > 2 are always odd
+            
+            if self._is_prime(num):
+                return num
+    
+    def _is_prime(self, n):
+        # checks if n is prime using trial division
+        if n < 2:
+            return False
+        if n == 2:
+            return True
+        if n % 2 == 0:
+            return False
+        
+        # only need to check up to sqrt(n) because factors come in pairs
+        for i in range(3, int(n**0.5) + 1, 2):
+            if n % i == 0:
+                return False
+        return True
+    
 # TODO: factory pattern
 
 # TODO: facade algorithm
