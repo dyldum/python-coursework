@@ -33,6 +33,7 @@ class MainPage(tk.Frame):
             "RSA Encryption / Decryption",
             "Fibonacci (Dynamic Programming)",
             "Selection Sort",
+            "Bubble Sort",
             "Merge Sort",
             "Card Shuffe",
             "Factorial (Recursion)",
@@ -176,8 +177,12 @@ class InputPage(tk.Frame):
                 "Enter an integer N.\n"
                 "The program will compute the Nth Fibonacci number using dynamic programming.",
 
-            "Selection sort":
+            "Selection Sort":
                 "Enter numbers separated by commas.\n"
+                "Example: 5, 2, 1, 9, 4.",
+
+            "Bubble Sort":
+                "enter numbers seperated by commas. \n"
                 "Example: 5, 2, 1, 9, 4.",
 
             "Merge Sort":
@@ -216,8 +221,34 @@ class InputPage(tk.Frame):
             result = rsa.execute(user_input)
             self.output.insert("1.0", result)
             return
+        
+        if self.algorithm_name == "Fibonacci (Dynamic Programming)":
+            fib = FibonacciDPStrategy()
+            result = fib.execute(user_input)
+            self.output.insert("1.0", result)
+            return
+        
+        if self.algorithm_name == "Selection Sort":
+            sorter = SelectionSortStrategy()
+            result = sorter.execute(user_input)
+            self.output.insert("1.0", result)
+            return
 
-        # Keep placeholder for everything else until you implement them
+        if self.algorithm_name == "Bubble Sort":
+            sorter = BubbleSortStrategy()
+            result = sorter.execute(user_input)
+            self.output.insert("1.0", result)
+            return
+        
+        if self.algorithm_name == "Merge Sort":
+            sorter = MergeSortStrategy()
+            result = sorter.execute(user_input)
+            self.output.insert("1.0", result)
+            return
+
+
+
+        # Keep placeholder for everything else until implementing them
         self.output.insert("1.0", f"[INFO] Algorithm '{self.algorithm_name}' not implemented yet.\n")
 
        
@@ -250,7 +281,204 @@ class App(tk.Tk):
 class AlgorithmStrategy:
     def execute(self, input_data):
         raise NotImplementedError()
+    
+class FibonacciDPStrategy(AlgorithmStrategy):
+   
 
+    def execute(self, input_data) -> str:
+        # Validate input
+        # using bottom up approach
+        try:
+            n = int(str(input_data).strip())
+        except ValueError:
+            return "Please enter a valid integer."
+
+        if n < 0:
+            return  "N must be 0 or a positive integer."
+
+        # DP base cases
+        if n == 0:
+            return "Fibonacci(0) = 0"
+        if n == 1:
+            return "Fibonacci(1) = 1"
+
+        # DP table approach - store previous two values
+        fib_prev = 0  
+        fib_curr = 1  
+        
+        # build up from fib(2) to fib(n)
+        for i in range(2, n + 1):
+            fib_next = fib_prev + fib_curr
+            fib_prev = fib_curr
+            fib_curr = fib_next
+
+        return f"Fibonacci({n}) = {fib_curr}"
+    
+class SelectionSortStrategy(AlgorithmStrategy):
+    # find smallest (or largest) and swap to front
+
+    def execute(self, input_data) -> str:
+        try:
+            # parse the input string
+            nums_str = input_data.strip().lower()
+            
+            # check if user wants descending
+            descending = False
+            if "desc" in nums_str or "descending" in nums_str:
+                descending = True
+                # remove the desc keyword to get just numbers
+                nums_str = nums_str.replace("desc", "").replace("descending", "").strip()
+            
+            arr = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
+        except:
+            return "[ERROR] Please enter numbers separated by commas\nOptional: add 'desc' for descending"
+
+        if len(arr) == 0:
+            return "[ERROR] Need at least one number"
+
+        original = arr.copy()
+        n = len(arr)
+
+        # selection sort algorithm
+        for i in range(n):
+            target_idx = i
+            # find min or max depending on order
+            for j in range(i + 1, n):
+                if descending:
+                    if arr[j] > arr[target_idx]:  # find max for descending
+                        target_idx = j
+                else:
+                    if arr[j] < arr[target_idx]:  # find min for ascending
+                        target_idx = j
+            # swap
+            arr[i], arr[target_idx] = arr[target_idx], arr[i]
+
+        order_str = "Descending" if descending else "Ascending"
+        return f"Selection Sort ({order_str})\nOriginal: {original}\nSorted: {arr}"
+
+
+class BubbleSortStrategy(AlgorithmStrategy):
+    # swap adjacent elements
+
+    def execute(self, input_data) -> str:
+        try:
+            nums_str = input_data.strip().lower()
+            
+            # check for descending order
+            descending = False
+            if "desc" in nums_str or "descending" in nums_str:
+                descending = True
+                nums_str = nums_str.replace("desc", "").replace("descending", "").strip()
+            
+            arr = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
+        except:
+            return "[ERROR] Please enter numbers separated by commas\nOptional: add 'desc' for descending"
+
+        if not arr:
+            return "[ERROR] Need at least one number"
+
+        original = arr[:]
+        n = len(arr)
+
+        # bcompare adjacent elements
+        for i in range(n):
+            for j in range(0, n - i - 1):
+                # swap based on order
+                if descending:
+                    if arr[j] < arr[j + 1]:  # swap if current < next (for descending)
+                        arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                else:
+                    if arr[j] > arr[j + 1]:  # swap if current > next (for ascending)
+                        arr[j], arr[j + 1] = arr[j + 1], arr[j]
+
+        order_str = "Descending" if descending else "Ascending"
+        return f"Bubble Sort ({order_str})\nOriginal: {original}\nSorted: {arr}"
+
+
+class MergeSortStrategy(AlgorithmStrategy):
+    # merge sort - divide and conquer approach
+
+    def execute(self, input_data) -> str:
+        try:
+            nums_str = input_data.strip().lower()
+
+            # check if user wants descending (default is ascending)
+            desc = False
+            if "desc" in nums_str or "descending" in nums_str:
+                desc = True
+                nums_str = nums_str.replace("desc", "").replace("descending", "").strip()
+
+            arr = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
+        except:
+            return "[ERROR] Please enter numbers separated by commas\nOptional: add 'desc' for descending"
+
+        if not arr:
+            return "[ERROR] Need at least one number"
+
+        original = arr.copy()
+        # call the recursive merge sort
+        sorted_arr = self._merge_sort(arr, desc)
+
+        order = "Descending" if desc else "Ascending"
+        return (
+            f"Merge Sort ({order})\n"
+            f"Original: {original}\n"
+            f"Sorted: {sorted_arr}"
+        )
+
+    def _merge_sort(self, arr, desc):
+        # base case - array with 1 element is already sorted
+        if len(arr) <= 1:
+            return arr
+
+        # divide array into two halves
+        mid = len(arr) // 2
+        left_half = arr[:mid]
+        right_half = arr[mid:]
+
+        # recursively sort both halves
+        left_sorted = self._merge_sort(left_half, desc)
+        right_sorted = self._merge_sort(right_half, decs)  # BUG: typo - decs instead of desc
+
+        # merge the sorted halves
+        return self._merge(left_sorted, right_sorted, desc)
+
+    def _merge(self, left, right, desc):
+        # merge two sorted arrays into one
+        result = []
+        left_idx = 0
+        right_idx = 0
+
+        # compare elements from left and right arrays
+        while left_idx < len(left) and right_idx < len(right):
+            if desc:
+                # for descending, take larger element first
+                if left[left_idx] >= right[right_idx]:
+                    result.append(left[left_idx])
+                    left_idx += 1
+                else:
+                    result.append(right[right_idx])
+                    right_idx += 1
+            else:
+                # for ascending, take smaller element first
+                if left[left_idx] <= right[right_idx]:
+                    result.append(left[left_idx])
+                    left_idx += 1
+                else:
+                    result.append(right[right_idx])
+                    right_idx += 1
+
+        # add any remaining elements from left array
+        while left_idx < len(left):
+            result.append(left[left_idx])
+            left_idx += 1
+
+        # add any remaining elements from right array
+        while right_idx < len(right):
+            result.append(right[right_idx])
+            right_idx += 1
+
+        return result
 
 class RSAEncryptionStrategy(AlgorithmStrategy):
 
@@ -411,9 +639,6 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         # keeps trying generated random numbers until it finds one that's prime
         while True:
             num = random.randint(min_val, max_val)
-            # print(f"Trying {num}... (attempt {attempts})")
-            # if num< minv_val
-            # continue
             if num % 2 == 0:
                 num += 1  # primes > 2 are always odd
             
@@ -439,7 +664,7 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
 
 # TODO: facade algorithm
 
-# run the gui
+# runs the gui
 if __name__ == "__main__":
     app = App()
     app.mainloop()
