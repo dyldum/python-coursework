@@ -28,6 +28,8 @@ class MainPage(tk.Frame):
             pady = 10
         ).pack()
         
+        tk.Frame(self, bg="#E8EEFF", height=10).pack()
+
         # list of algorithms to be iterated through with buttons
         algorithms = [
             "RSA Encryption / Decryption",
@@ -61,6 +63,8 @@ class MainPage(tk.Frame):
             pady=8,
             borderwidth=0,
             highlightthickness=0,
+            cursor= "hand2",
+            relief = "flat",
             command=make_command(algorithm)
         ).pack(pady=5)
             
@@ -94,7 +98,7 @@ class InputPage(tk.Frame):
             justify = "left",
             wraplength = 700
         )
-        self.description_label.pack(pady = 15)
+        self.description_label.pack(pady=15, padx=20)
 
         tk.Label(
             self,
@@ -110,7 +114,7 @@ class InputPage(tk.Frame):
             width=50, 
             borderwidth=3, 
             relief="groove")
-        self.input_box.pack(pady=10)
+        self.input_box.pack(pady=10, padx=20)
 
         tk.Button(
             self,
@@ -122,13 +126,18 @@ class InputPage(tk.Frame):
         ).pack(pady = 10)
 
         self.output = tk.Text(
-        self,
-        height=10,
-        font=("Consolas", 12),
-        borderwidth=3,
-        relief="solid"
+            self,
+            height=8,
+            width=70,
+            font=("Consolas", 12),
+            borderwidth=2,
+            relief="sunken",
+            bg="#FFFFFF",
+            fg="#1F2937",
+            padx=10,
+            pady=10
         )
-        self.output.pack(pady=10)
+        self.output.pack(pady=15, padx=20)
 
         # TODO: back button
         tk.Button(
@@ -245,11 +254,18 @@ class InputPage(tk.Frame):
             result = sorter.execute(user_input)
             self.output.insert("1.0", result)
             return
+        
+        if self.algorithm_name == "Card Shuffe":
+            shuffler = CardShuffleStrategy()
+            result = shuffler.execute()
+            self.output.insert("1.0", result)
+            return
+
 
 
 
         # Keep placeholder for everything else until implementing them
-        self.output.insert("1.0", f"[INFO] Algorithm '{self.algorithm_name}' not implemented yet.\n")
+        self.output.insert("1.0", f" Algorithm '{self.algorithm_name}' not implemented yet.\n")
 
        
 # uses MainPage and creates a container to switch frames to InputPage
@@ -438,7 +454,7 @@ class MergeSortStrategy(AlgorithmStrategy):
 
         # recursively sort both halves
         left_sorted = self._merge_sort(left_half, desc)
-        right_sorted = self._merge_sort(right_half, decs)  # BUG: typo - decs instead of desc
+        right_sorted = self._merge_sort(right_half, desc) 
 
         # merge the sorted halves
         return self._merge(left_sorted, right_sorted, desc)
@@ -479,6 +495,34 @@ class MergeSortStrategy(AlgorithmStrategy):
             right_idx += 1
 
         return result
+    
+class CardShuffleStrategy(AlgorithmStrategy):
+    # shuffles a deck of cards
+
+    def execute(self, input_data=None) -> str:
+        # build a standard deck
+        suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
+        ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
+
+        # make all 52 cards
+        deck = []
+        for suit in suits:
+            for rank in ranks:
+                deck.append(f"{rank} of {suit}")
+
+        # shuffle using Fisher-Yates algorithm
+        # swap each card with a random card before it
+        for i in range(len(deck) - 1, 0, -1):
+            j = random.randint(0, i)
+            deck[i], deck[j] = deck[j], deck[i]
+
+        # show the shuffled deck
+        result = "Shuffled Deck (52 cards):\n\n"
+        for i in range(len(deck)):
+            result += f"{i+1}. {deck[i]}\n"
+
+        return result
+
 
 class RSAEncryptionStrategy(AlgorithmStrategy):
 
