@@ -3,7 +3,7 @@ from tkinter import ttk,messagebox
 import math
 import random
 
-# TODO: main window
+# TODO: main GUI window
 
 class MainPage(tk.Frame):
     def __init__(self, parent_window, controller):
@@ -15,16 +15,17 @@ class MainPage(tk.Frame):
             self,
             text = "Algorithm Workshop",
             font = ("Arial", 26,"bold"),
-            bg = "#1E3A8A",
+            bg = "#5453CF",
             fg = "white",
             pady = 20
         ).pack(fill = "x")
 
         tk.Label(
             self,
-            text = "choose an algorithm",
+            text = "Choose an Algorithm",
             font = ("Arial", 16, "bold"),
             bg = "#E8EEFF",
+            fg = "#3B3AA1",
             pady = 10
         ).pack()
         
@@ -56,7 +57,7 @@ class MainPage(tk.Frame):
             text = algorithm,
             font = ("Arial", 13, "bold"),
             fg="white",
-            bg = "#1E3A8A",
+            bg = "#5453CF",
             activeforeground="white",
             activebackground="#27428F",
             width=40,
@@ -75,7 +76,7 @@ class MainPage(tk.Frame):
         self.controller.show(InputPage)
 
 
-# TODO:  input pages
+# TODO:  input page/s
 
 class InputPage(tk.Frame):
     def __init__ (self, parent_window, controller):
@@ -107,7 +108,7 @@ class InputPage(tk.Frame):
             bg = "#EEF3FF"
         ).pack()
 
-        # *** dummy input box
+        # *** dummy input box ***
         self.input_box = tk.Entry(
             self, 
             font=("Arial", 14), 
@@ -160,8 +161,6 @@ class InputPage(tk.Frame):
 
 
 
-
-
 # TODO: boundary descriptions, setting algorithms, final run function
 
     def set_algorithm(self, algorithm_name):
@@ -180,11 +179,11 @@ class InputPage(tk.Frame):
                 "Use:\n"
                 "  enc:Hello world\n"
                 "  dec:123,456;n=<n>;d=<d>\n\n"
-                "Tip: run enc:... first, then copy the dec:... line it prints.",
+                "how to use: run enc:... first, then copy the dec:... line it prints.",
 
             "Fibonacci (Dynamic Programming)":
                 "Enter an integer N.\n"
-                "The program will compute the Nth Fibonacci number using dynamic programming.",
+                "The program will solve the Nth Fibonacci number with dynamic programming.",
 
             "Selection Sort":
                 "Enter numbers separated by commas.\n"
@@ -219,7 +218,7 @@ class InputPage(tk.Frame):
             }
         return descriptions.get(algorithm,"")
     
-    # test run, LINK with design pattern when finished
+    # test run, LINK with design pattern when finished, group together
     def run_algorithm(self):
         self.output.delete("1.0", tk.END)
 
@@ -260,6 +259,13 @@ class InputPage(tk.Frame):
             result = shuffler.execute()
             self.output.insert("1.0", result)
             return
+        
+        if self.algorithm_name == "Factorial (Recursion)":
+            fact = FactorialStrategy()
+            result = fact.execute(user_input)
+            self.output.insert("1.0", result)
+            return
+
 
 
 
@@ -275,10 +281,8 @@ class App(tk.Tk):
         self.title("Algorithm Workshop")
         self.geometry("800x600")
         self.configure(bg="#E8EEFF")
-
         self.container = tk.Frame(self, bg="#E8EEFF")
         self.container.pack(fill="both", expand=True)
-
         self.frames = {}
 
         for F in (MainPage, InputPage):
@@ -292,7 +296,7 @@ class App(tk.Tk):
         self.frames[frame].tkraise()
 
 
-# TODO: startegy pattern
+# TODO: startegy pattern 
 
 class AlgorithmStrategy:
     def execute(self, input_data):
@@ -300,7 +304,6 @@ class AlgorithmStrategy:
     
 class FibonacciDPStrategy(AlgorithmStrategy):
    
-
     def execute(self, input_data) -> str:
         # Validate input
         # using bottom up approach
@@ -396,7 +399,7 @@ class BubbleSortStrategy(AlgorithmStrategy):
         original = arr[:]
         n = len(arr)
 
-        # bcompare adjacent elements
+        # compare adjacent elements
         for i in range(n):
             for j in range(0, n - i - 1):
                 # swap based on order
@@ -436,6 +439,7 @@ class MergeSortStrategy(AlgorithmStrategy):
         sorted_arr = self._merge_sort(arr, desc)
 
         order = "Descending" if desc else "Ascending"
+
         return (
             f"Merge Sort ({order})\n"
             f"Original: {original}\n"
@@ -443,7 +447,7 @@ class MergeSortStrategy(AlgorithmStrategy):
         )
 
     def _merge_sort(self, arr, desc):
-        # base case - array with 1 element is already sorted
+        # base case  array with 1 element is already sorted
         if len(arr) <= 1:
             return arr
 
@@ -522,6 +526,36 @@ class CardShuffleStrategy(AlgorithmStrategy):
             result += f"{i+1}. {deck[i]}\n"
 
         return result
+
+class FactorialStrategy(AlgorithmStrategy):
+    # recursive factorial calculation
+  
+    def execute(self, input_data) -> str:
+        try:
+            n = int(str(input_data).strip())
+        except:
+            return "[ERROR] Please enter a valid integer."
+
+        if n< 0:
+            return "[ERROR] Factorial not defined for negative numbers."
+        
+        # warnng if factorial gets too big/ speed consideration
+        if n > 100:
+            return "[ERROR] Number too large (max 100)."
+
+        result = self._factorial(n)
+        return f"Factorial({n}) = {result}"
+
+    # TODO: implement recursive cases
+
+    def _factorial(self, n):
+        # base case 
+        if n<=1:
+            return 1
+        
+        # recursive case - n! = n * (n-1)!
+        else:
+            return n * self._factorial(n - 1)
 
 
 class RSAEncryptionStrategy(AlgorithmStrategy):
@@ -704,11 +738,11 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
                 return False
         return True
     
-# TODO: factory pattern
+# TODO: factory pattern (restructure run_algorithm)
 
 # TODO: facade algorithm
 
-# runs the gui
+# runs the app
 if __name__ == "__main__":
     app = App()
     app.mainloop()
