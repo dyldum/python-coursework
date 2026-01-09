@@ -265,10 +265,18 @@ class InputPage(tk.Frame):
             result = fact.execute(user_input)
             self.output.insert("1.0", result)
             return
-
-
-
-
+        
+        if self.algorithm_name == "Stats search (Range, Median, Mode, IQF'S)":
+            stats = StatsSearchStrategy()
+            result = stats.execute(user_input)
+            self.output.insert("1.0", result)
+            return
+        
+        if self.algorithm_name == "Palindrome Substring Counter":
+            palindrome = PalindromeSubstringStrategy()
+            result = palindrome.execute(user_input)
+            self.output.insert("1.0", result)
+            return
 
         # Keep placeholder for everything else until implementing them
         self.output.insert("1.0", f" Algorithm '{self.algorithm_name}' not implemented yet.\n")
@@ -520,7 +528,7 @@ class CardShuffleStrategy(AlgorithmStrategy):
             j = random.randint(0, i)
             deck[i], deck[j] = deck[j], deck[i]
 
-        # show the shuffled deck
+        # showing deck
         result = "Shuffled Deck (52 cards):\n\n"
         for i in range(len(deck)):
             result += f"{i+1}. {deck[i]}\n"
@@ -550,13 +558,126 @@ class FactorialStrategy(AlgorithmStrategy):
 
     def _factorial(self, n):
         # base case 
-        if n<=1:
+        if n == 0 or n == 1:
             return 1
         
         # recursive case - n! = n * (n-1)!
         else:
             return n * self._factorial(n - 1)
 
+
+class StatsSearchStrategy(AlgorithmStrategy):
+    # finds stats: range, median, mode, quartiles from array
+
+    def execute(self, input_data) -> str:
+        try:
+            nums_str = input_data.strip()
+            arr = [float(x.strip()) for x in nums_str.split(",") if x.strip()]
+        except:
+            return "[ERROR] Please enter numbers separated by commas"
+
+        if not arr:
+            return "[ERROR] Need at least one number"
+
+        # sort the array first
+        sorted_arr = sorted(arr)
+        
+        # calculate all the stats
+        smallest = min(sorted_arr)
+        largest = max(sorted_arr)
+        range_val = largest - smallest
+        
+        median = self._find_median(sorted_arr)
+        mode = self._find_mode(arr)
+        q1 = self._find_q1(sorted_arr)
+        q3 = self._find_q3(sorted_arr)
+        
+        # format output
+        result = "Statistics:\n\n"
+        result += f"Smallest: {smallest}\n"
+        result += f"Largest: {largest}\n"
+        result += f"Range: {range_val}\n"
+        result += f"Median: {median}\n"
+        result += f"Mode: {mode}\n"
+        result += f"Q1 (1st Quartile): {q1}\n"
+        result += f"Q3 (3rd Quartile): {q3}\n"
+        
+        return result
+    
+    def _find_median(self, sorted_arr):
+        # middle value
+        n = len(sorted_arr)
+        mid = n // 2
+        
+        if n % 2 == 0:
+            # average the two middle ones
+            return (sorted_arr[mid-1] + sorted_arr[mid]) / 2
+        else:
+            # taking middle
+            return sorted_arr[mid]
+
+    def _find_mode(self, arr):
+        # count how many times each number appears
+        counts = {}
+        for num in arr:
+            if num in counts:
+                counts[num] += 1
+            else:
+                counts[num] = 1
+        
+        # highest count
+        max_count = max(counts.values())
+        
+        
+        modes = [num for num, count in counts.items() if count == max_count]
+        
+        # just in case if everything appears once, no mode
+        if max_count == 1:
+            return "No mode (all values appear once)"
+        
+        # just in case multiple modes
+        if len(modes) > 1:
+            return f"Multiple modes: {modes}"
+        
+        return modes[0]
+
+    def _find_q1(self, sorted_arr):
+        # Q1 is median of lower half
+        n = len(sorted_arr)
+        mid = n // 2
+        
+        if n % 2 == 0:
+            lower_half = sorted_arr[:mid]
+        else:
+            # odd - lower half excludes middle
+            lower_half = sorted_arr[:mid]
+        
+        return self._find_median(lower_half)
+
+    def _find_q3(self, sorted_arr):
+        # Q3 is median of upper half
+        n = len(sorted_arr)
+        mid = n // 2
+        
+        if n % 2 == 0:
+            upper_half = sorted_arr[mid:]
+        else:
+            # odd - upper half excludes middle
+            upper_half = sorted_arr[mid+1:]
+        
+        return self._find_median(upper_half)
+    
+class PalindromeSubstringStrategy(AlgorithmStrategy):
+    # counts palindrome substrings 
+
+    def execute(self, input_data) -> str:
+        text = str(input_data).strip()
+        
+        if not text:
+            return "[ERROR] Please enter a string"
+
+
+    
 
 class RSAEncryptionStrategy(AlgorithmStrategy):
 
