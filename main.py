@@ -76,8 +76,6 @@ class MainPage(tk.Frame):
         self.controller.show(InputPage)
 
 
-# TODO:  input page/s
-
 class InputPage(tk.Frame):
     def __init__ (self, parent_window, controller):
         super().__init__(parent_window, bg = "#EEF3FF")
@@ -140,7 +138,6 @@ class InputPage(tk.Frame):
         )
         self.output.pack(pady=15, padx=20)
 
-        # TODO: back button
         tk.Button(
             self,
             text="Back to Menu",
@@ -158,10 +155,6 @@ class InputPage(tk.Frame):
         self.input_box.delete(0, tk.END)
         self.output.delete("1.0", tk.END)
         self.controller.show(MainPage)
-
-
-
-# TODO: boundary descriptions, setting algorithms, final run function
 
     def set_algorithm(self, algorithm_name):
         self.algorithm_name = algorithm_name
@@ -219,69 +212,20 @@ class InputPage(tk.Frame):
         return descriptions.get(algorithm,"")
     
     # test run, LINK with design pattern when finished, group together
+    # test run, using factory pattern
     def run_algorithm(self):
         self.output.delete("1.0", tk.END)
-
         user_input = self.input_box.get()
+        
+        # use factory to create algorithm
+        algorithm = AlgorithmFactory.create(self.algorithm_name)
+        
+        if algorithm:
+            result = algorithm.execute(user_input)
+            self.output.insert("1.0", result)
+        else:
+            self.output.insert("1.0", "[ERROR] Algorithm not found")
 
-        if self.algorithm_name == "RSA Encryption / Decryption":
-            rsa = RSAEncryptionStrategy()
-            result = rsa.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Fibonacci (Dynamic Programming)":
-            fib = FibonacciDPStrategy()
-            result = fib.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Selection Sort":
-            sorter = SelectionSortStrategy()
-            result = sorter.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-
-        if self.algorithm_name == "Bubble Sort":
-            sorter = BubbleSortStrategy()
-            result = sorter.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Merge Sort":
-            sorter = MergeSortStrategy()
-            result = sorter.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Card Shuffe":
-            shuffler = CardShuffleStrategy()
-            result = shuffler.execute()
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Factorial (Recursion)":
-            fact = FactorialStrategy()
-            result = fact.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Stats search (Range, Median, Mode, IQF'S)":
-            stats = StatsSearchStrategy()
-            result = stats.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-        
-        if self.algorithm_name == "Palindrome Substring Counter":
-            palindrome = PalindromeSubstringStrategy()
-            result = palindrome.execute(user_input)
-            self.output.insert("1.0", result)
-            return
-
-        # Keep placeholder for everything else until implementing them
-        self.output.insert("1.0", f" Algorithm '{self.algorithm_name}' not implemented yet.\n")
-
-       
 # uses MainPage and creates a container to switch frames to InputPage
 class App(tk.Tk):
     def __init__(self):
@@ -303,8 +247,6 @@ class App(tk.Tk):
     def show(self, frame):
         self.frames[frame].tkraise()
 
-
-# TODO: startegy pattern 
 
 class AlgorithmStrategy:
     def execute(self, input_data):
@@ -423,7 +365,7 @@ class BubbleSortStrategy(AlgorithmStrategy):
 
 
 class MergeSortStrategy(AlgorithmStrategy):
-    # merge sort - divide and conquer approach
+    # divide and conquer approach
 
     def execute(self, input_data) -> str:
         try:
@@ -536,7 +478,7 @@ class CardShuffleStrategy(AlgorithmStrategy):
         return result
 
 class FactorialStrategy(AlgorithmStrategy):
-    # recursive factorial calculation
+    # recursive factorial 
   
     def execute(self, input_data) -> str:
         try:
@@ -554,7 +496,6 @@ class FactorialStrategy(AlgorithmStrategy):
         result = self._factorial(n)
         return f"Factorial({n}) = {result}"
 
-    # TODO: implement recursive cases
 
     def _factorial(self, n):
         # base case 
@@ -579,10 +520,10 @@ class StatsSearchStrategy(AlgorithmStrategy):
         if not arr:
             return "[ERROR] Need at least one number"
 
-        # sort the array first
+        # sort array
         sorted_arr = sorted(arr)
         
-        # calculate all the stats
+        # calculate stats
         smallest = min(sorted_arr)
         largest = max(sorted_arr)
         range_val = largest - smallest
@@ -593,16 +534,15 @@ class StatsSearchStrategy(AlgorithmStrategy):
         q3 = self._find_q3(sorted_arr)
         
         # format output
-        result = "Statistics:\n\n"
-        result += f"Smallest: {smallest}\n"
-        result += f"Largest: {largest}\n"
-        result += f"Range: {range_val}\n"
-        result += f"Median: {median}\n"
-        result += f"Mode: {mode}\n"
-        result += f"Q1 (1st Quartile): {q1}\n"
-        result += f"Q3 (3rd Quartile): {q3}\n"
-        
-        return result
+        return f"""Statistics:
+
+            Smallest: {smallest}
+            Largest: {largest}
+            Range: {range_val}
+            Median: {median}
+            Mode: {mode}
+            Q1 (1st Quartile): {q1}
+            Q3 (3rd Quartile): {q3}"""
     
     def _find_median(self, sorted_arr):
         # middle value
@@ -627,7 +567,6 @@ class StatsSearchStrategy(AlgorithmStrategy):
         
         # highest count
         max_count = max(counts.values())
-        
         
         modes = [num for num, count in counts.items() if count == max_count]
         
@@ -668,7 +607,7 @@ class StatsSearchStrategy(AlgorithmStrategy):
         return self._find_median(upper_half)
     
 class PalindromeSubstringStrategy(AlgorithmStrategy):
-    # counts palindrome substrings 
+    # counts palindromic substrings using memoization
 
     def execute(self, input_data) -> str:
         text = str(input_data).strip()
@@ -676,6 +615,28 @@ class PalindromeSubstringStrategy(AlgorithmStrategy):
         if not text:
             return "[ERROR] Please enter a string"
 
+        # memoization dict
+        self.memo = {}
+        count = 0
+        
+        # check every substring
+        for i in range(len(text)):
+            for j in range(i, len(text)):
+                substring = text[i:j+1]
+                if self._is_palindrome(substring):
+                    count += 1
+        
+        return f"Total palindromic substrings: {count}"
+
+    def _is_palindrome(self, s):
+        # check if already calculated
+        if s in self.memo:
+            return self.memo[s]
+        
+        # check if palindrome
+        result = (s == s[::-1])
+        self.memo[s] = result
+        return result
 
     
 
@@ -683,7 +644,7 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
 
     def execute(self, input_data: str) -> str:
         if not isinstance(input_data, str):
-            return "[RSA ERROR] Input must be a string."
+            return "RSA ERROR Input must be a string."
 
         text = input_data.strip()
         if not text:
@@ -816,7 +777,8 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         return (e, n), (d, n)
 
     def _mod_inverse(self, a, m):
-        # extended euclidean algorithm (inspiration - geeksforgeeks)
+         # extended euclidean algorithm
+        # from: https://www.geeksforgeeks.org/euclidean-algorithms-basic-and-extended/
         m0 = m
         x0 = 0
         x1 = 1
@@ -835,7 +797,8 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         return x1
 
     def _find_prime(self, min_val, max_val):
-        # keeps trying generated random numbers until it finds one that's prime
+        # trial division primality test
+        # adapted from: https://stackoverflow.com/questions/15285534/isprime-function-for-python-language
         while True:
             num = random.randint(min_val, max_val)
             if num % 2 == 0:
@@ -859,7 +822,34 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
                 return False
         return True
     
-# TODO: factory pattern (restructure run_algorithm)
+
+class AlgorithmFactory:
+        # static factory method pattern
+        # learned from: https://realpython.com/instance-class-and-static-methods-demystified/
+    
+    @staticmethod
+    def create(algorithm_name):
+        # map algorithm names to their classes
+        algorithms = {
+            "RSA Encryption / Decryption": RSAEncryptionStrategy,
+            "Fibonacci (Dynamic Programming)": FibonacciDPStrategy,
+            "Selection Sort": SelectionSortStrategy,
+            "Bubble Sort": BubbleSortStrategy,
+            "Merge Sort": MergeSortStrategy,
+            "Card Shuffe": CardShuffleStrategy,
+            "Factorial (Recursion)": FactorialStrategy,
+            "Stats search (Range, Median, Mode, IQF'S)": StatsSearchStrategy,
+            "Palindrome Substring Counter": PalindromeSubstringStrategy
+        }
+        
+        # get the class for this algorithm
+        algorithm_class = algorithms.get(algorithm_name)
+        
+        if algorithm_class:
+            return algorithm_class()
+        else:
+            return None
+        
 
 # TODO: facade algorithm
 
