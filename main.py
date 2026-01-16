@@ -216,15 +216,9 @@ class InputPage(tk.Frame):
     def run_algorithm(self):
         self.output.delete("1.0", tk.END)
         user_input = self.input_box.get()
-        
-        # use factory to create algorithm
-        algorithm = AlgorithmFactory.create(self.algorithm_name)
-        
-        if algorithm:
-            result = algorithm.execute(user_input)
-            self.output.insert("1.0", result)
-        else:
-            self.output.insert("1.0", "[ERROR] Algorithm not found")
+
+        result = AlgorithmFacade.run(self.algorithm_name, user_input)
+        self.output.insert("1.0", result)
 
 # uses MainPage and creates a container to switch frames to InputPage
 class App(tk.Tk):
@@ -825,7 +819,7 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
 
 class AlgorithmFactory:
         # static factory method pattern
-        # learned from: https://realpython.com/instance-class-and-static-methods-demystified/
+        # adpated from: https://realpython.com/instance-class-and-static-methods-demystified/
     
     @staticmethod
     def create(algorithm_name):
@@ -851,7 +845,23 @@ class AlgorithmFactory:
             return None
         
 
-# TODO: facade algorithm
+class AlgorithmFacade:
+    # facade pattern - simplifies running algorithms
+    # merges factory and strategy
+    
+    @staticmethod
+    def run(algorithm_name, user_input):
+        # pull from factory
+        algorithm = AlgorithmFactory.create(algorithm_name)
+        
+        if not algorithm:
+            return "[ERROR] Algorithm not found"
+        
+        # run the algorithm
+        # TODO: add validation here later?
+        result = algorithm.execute(user_input)
+        return result
+
 
 # runs the app
 if __name__ == "__main__":
