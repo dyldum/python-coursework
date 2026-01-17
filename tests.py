@@ -1,6 +1,7 @@
 # Functional and performance tests for Algorithm Workshop
 
 from main import *
+import time 
 
 #helps check tests
 def run_test(name, algorithm, input_data, expected_data):
@@ -47,7 +48,7 @@ merge_sort = MergeSortStrategy()
 run_test("Merge Sort ascending", merge_sort, "7,2,5,3,9", "[2, 3, 5, 7, 9]")
 run_test("Merge Sort descending", merge_sort, "7,2,5 desc", "[7, 5, 2]")
 
-# test card dhuffle
+# test card shuffle
 print("card shuffle")
 shuffle = CardShuffleStrategy()
 result = shuffle.execute() #cant put through test function
@@ -84,6 +85,7 @@ print()
 print("RSA Encryption/Decryption")
 rsa = RSAEncryptionStrategy()
 enc_result = rsa.execute("enc:Test")
+
 if "Public key" in enc_result and "Private key" in enc_result:
     print("RSA encryption generates keys")
     print("PASSED")
@@ -91,5 +93,65 @@ if "Public key" in enc_result and "Private key" in enc_result:
 else:
     print("failed ")
 print()
+
+print("performance tests")
+print()
+# testing time taken to run functions
+# not too sure what classes as good performance in this context so i set a decider of one second then found the struggle point of each algorithm
+print("Factorial()")
+fact = FactorialStrategy()
+start = time.time()
+fact.execute("99")            # limit is 99 and still 0 computation time so algorithm is efficient
+time_taken = time.time() - start
+print(f"Time:{time_taken:.3f}s")
+
+if time_taken < 1.0:
+    print("under < 1.0s")
+else:
+    print("over > 1.0s")
+print()
+
+# large merge sort performance
+print("2. Merge Sort (1000 elements)")
+merge = MergeSortStrategy()
+large_array = ",".join([str(i) for i in range(600000, 0, -1)]) # 600000 is upper limit
+start = time.time()
+merge.execute(large_array)
+time_taken = time.time() - start
+print(f"   Time: {time_taken:.3f}s")
+if time_taken < 1.0:
+    print("under < 1.0s")
+else:
+    print("over > 1.0s")
+print()
+
+# fibonacci performance
+print("Fibonacci(20000)")
+fib = FibonacciDPStrategy()
+start = time.time()
+fib.execute("20000") # upper limit, the code breaks here because too many intgegers, can increase max digit
+time_taken = time.time() - start
+print(f"   Time: {time_taken:.3f}s")
+
+if time_taken < 0.5:
+    print("under < 0.5s")
+else:
+    print("over > 0.5s")
+print()
+
+# palindrome performance
+print("Palindrome(racecar * 310)")
+pal = PalindromeSubstringStrategy()
+start = time.time()
+pal.execute("racecar" * 310) # upper lim
+time_taken = time.time() - start
+print(f"   Time: {time_taken:.3f}s")
+
+if time_taken < 1.0:
+    print("under< 1.0s")
+else:
+    print("over > 1.0s")
+print()
+
 
 
