@@ -13,18 +13,18 @@ class MainPage(tk.Frame):
         # visual aspect of gui
         tk.Label(
             self,
-            text = "Algorithm Workshop",
+            text= "Algorithm Workshop",
             font = ("Arial", 26,"bold"),
-            bg = "#5453CF",
-            fg = "white",
+            bg ="#5453CF",
+            fg ="white",
             pady = 20
-        ).pack(fill = "x")
+        ).pack(fill= "x")
 
         tk.Label(
             self,
             text = "Choose an Algorithm",
             font = ("Arial", 16, "bold"),
-            bg = "#E8EEFF",
+            bg= "#E8EEFF",
             fg = "#3B3AA1",
             pady = 10
         ).pack()
@@ -32,19 +32,20 @@ class MainPage(tk.Frame):
         tk.Frame(self, bg="#E8EEFF", height=10).pack()
 
         # list of algorithms to be iterated through with buttons
+
         algorithms = [
             "RSA Encryption / Decryption",
             "Fibonacci (Dynamic Programming)",
             "Selection Sort",
             "Bubble Sort",
             "Merge Sort",
-            "Card Shuffe",
+            "Card shuffle",
             "Factorial (Recursion)",
             "Stats search (Range, Median, Mode, IQF'S)",
             "Palindrome Substring Counter"
         ]
 
-        # assigning a button for each item in list *** change colours later
+        # assigning a button for each item in list TODO: change colours later
         for algorithm in algorithms:
 
             def make_command(alg):
@@ -83,7 +84,7 @@ class InputPage(tk.Frame):
         self.algorithm_name = ""
 
         # visual aspects
-        self.title_label = tk.Label(
+        self.title_label= tk.Label(
             self, text="", font=("Arial", 22, "bold"),
             bg="#1E40AF", fg="white", pady=15
         )
@@ -121,7 +122,7 @@ class InputPage(tk.Frame):
             font = ("Arial", 14, "bold"),
             bg = "#2563EB",
             fg = "white",
-            command = self.run_algorithm
+            command= self.run_algorithm
         ).pack(pady = 10)
 
         self.output = tk.Text(
@@ -165,7 +166,7 @@ class InputPage(tk.Frame):
 
     def get_description(self, algorithm):
          
-         # dummy descriptions for input page *TODO: exception handling and dont rely on user input to be correct
+         # dummy descriptions for input page *TODO: exception handling and dont rely on user input 
         descriptions = {
             "RSA Encryption / Decryption":
                 "Enter a message to encrypt or decrypt.\n"
@@ -191,7 +192,7 @@ class InputPage(tk.Frame):
                 "Example: 7, 2, 5, 3, 9.\n"
                 "Uses divide and conquer.",
 
-            "Card Shuffe":
+            "Card shuffle":
                 "No input required.\n"
                 "Press Run to shuffle a standard deck of cards.",
 
@@ -211,11 +212,11 @@ class InputPage(tk.Frame):
             }
         return descriptions.get(algorithm,"")
     
-    # test run, LINK with design pattern when finished, group together
+
     # test run, using factory pattern
     def run_algorithm(self):
         self.output.delete("1.0", tk.END)
-        user_input = self.input_box.get()
+        user_input= self.input_box.get()
 
         result = AlgorithmFacade.run(self.algorithm_name, user_input)
         self.output.insert("1.0", result)
@@ -235,77 +236,76 @@ class App(tk.Tk):
             frame = F(self.container, self)
             self.frames[F] = frame
             frame.place(relwidth=1, relheight=1)
-
         self.show(MainPage)
 
     def show(self, frame):
         self.frames[frame].tkraise()
 
-
+# base class for inhheritance
 class AlgorithmStrategy:
     def execute(self, input_data):
         raise NotImplementedError()
+
+# adapted this approach from: https://refactoring.guru/design-patterns/strategy/python/example
     
 class FibonacciDPStrategy(AlgorithmStrategy):
    
     def execute(self, input_data) -> str:
         # Validate input
-        # using bottom up approach
+        # using the bottom up approach
         try:
             n = int(str(input_data).strip())
         except ValueError:
             return "Please enter a valid integer."
 
-        if n < 0:
+        if n <0:
             return  "N must be 0 or a positive integer."
 
         # DP base cases
         if n == 0:
             return "Fibonacci(0) = 0"
-        if n == 1:
+        if n== 1:
             return "Fibonacci(1) = 1"
 
-        # DP table approach - store previous two values
-        fib_prev = 0  
-        fib_curr = 1  
+        # DP table approach (store previous two values)
+        previous = 0  
+        current = 1  
         
         # build up from fib(2) to fib(n)
         for i in range(2, n + 1):
-            fib_next = fib_prev + fib_curr
-            fib_prev = fib_curr
-            fib_curr = fib_next
+            fib_next = previous + current
+            previous= current
+            current = fib_next
 
-        return f"Fibonacci({n}) = {fib_curr}"
+        return f"Fibonacci({n}) = {current}"
     
 class SelectionSortStrategy(AlgorithmStrategy):
     # find smallest (or largest) and swap to front
 
     def execute(self, input_data) -> str:
         try:
-            # parse the input string
             nums_str = input_data.strip().lower()
             
-            # check if user wants descending
-            descending = False
+            # check for descending option
+            descending= False
             if "desc" in nums_str or "descending" in nums_str:
                 descending = True
-                # remove the desc keyword to get just numbers
+                # remove the desc keyword to get just numbers for sort
                 nums_str = nums_str.replace("desc", "").replace("descending", "").strip()
             
             arr = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
         except:
-            return "[ERROR] Please enter numbers separated by commas\nOptional: add 'desc' for descending"
+            return "ERROR: Please enter numbers separated by commas\nOptional: add 'desc' for descending"
 
         if len(arr) == 0:
-            return "[ERROR] Need at least one number"
+            return "ERROR: Need at least one number"
 
         original = arr.copy()
         n = len(arr)
 
-        # selection sort algorithm
+        # finding min or max
         for i in range(n):
             target_idx = i
-            # find min or max depending on order
             for j in range(i + 1, n):
                 if descending:
                     if arr[j] > arr[target_idx]:  # find max for descending
@@ -314,16 +314,19 @@ class SelectionSortStrategy(AlgorithmStrategy):
                     if arr[j] < arr[target_idx]:  # find min for ascending
                         target_idx = j
             # swap
-            arr[i], arr[target_idx] = arr[target_idx], arr[i]
+            arr[i],arr[target_idx] = arr[target_idx], arr[i]
 
-        order_str = "Descending" if descending else "Ascending"
-        return f"Selection Sort ({order_str})\nOriginal: {original}\nSorted: {arr}"
+        sorted = "Descending" if descending else "Ascending"
+        return (
+            f"Selection Sort ({sorted})\n"
+            f"Original: {original}\n"
+            f"Sorted: {arr}")
 
 
 class BubbleSortStrategy(AlgorithmStrategy):
     # swap adjacent elements
 
-    def execute(self, input_data) -> str:
+    def execute(self,input_data) -> str:
         try:
             nums_str = input_data.strip().lower()
             
@@ -332,30 +335,33 @@ class BubbleSortStrategy(AlgorithmStrategy):
             if "desc" in nums_str or "descending" in nums_str:
                 descending = True
                 nums_str = nums_str.replace("desc", "").replace("descending", "").strip()
-            
-            arr = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
+            arr =[int(x.strip()) for x in nums_str.split(",") if x.strip()]
         except:
-            return "[ERROR] Please enter numbers separated by commas\nOptional: add 'desc' for descending"
+            return "ERROR: Please enter numbers separated by commas\nOptional: add 'desc' for descending"
 
         if not arr:
-            return "[ERROR] Need at least one number"
+            return "ERROR: Need at least one number"
 
-        original = arr[:]
+        original =arr[:]
         n = len(arr)
 
         # compare adjacent elements
         for i in range(n):
-            for j in range(0, n - i - 1):
-                # swap based on order
+            for j in range(0, n-i-1):
                 if descending:
-                    if arr[j] < arr[j + 1]:  # swap if current < next (for descending)
-                        arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                    if arr[j] <arr[j +1]:  # swap if current < next (for descending)
+                        arr[j], arr[j + 1] =arr[j+ 1], arr[j]
                 else:
-                    if arr[j] > arr[j + 1]:  # swap if current > next (for ascending)
-                        arr[j], arr[j + 1] = arr[j + 1], arr[j]
+                    if arr[j]>arr[j+ 1]:  # swap if current > next (for ascending)
+                        arr[j],arr[j+1] =arr[j+ 1],arr[j]
 
-        order_str = "Descending" if descending else "Ascending"
-        return f"Bubble Sort ({order_str})\nOriginal: {original}\nSorted: {arr}"
+        sorted = "Descending" if descending else "Ascending"
+        return (
+                f"Bubble Sort ({sorted})\n"
+                f"Original: {original}\n"
+                f"Sorted: {arr}"
+                ) 
+                
 
 
 class MergeSortStrategy(AlgorithmStrategy):
@@ -365,7 +371,7 @@ class MergeSortStrategy(AlgorithmStrategy):
         try:
             nums_str = input_data.strip().lower()
 
-            # check if user wants descending (default is ascending)
+            # check if user wants descending(default needs to be ascending)
             desc = False
             if "desc" in nums_str or "descending" in nums_str:
                 desc = True
@@ -373,10 +379,10 @@ class MergeSortStrategy(AlgorithmStrategy):
 
             arr = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
         except:
-            return "[ERROR] Please enter numbers separated by commas\nOptional: add 'desc' for descending"
+            return "ERROR: Please enter numbers separated by commas\nOptional: add 'desc' for descending"
 
         if not arr:
-            return "[ERROR] Need at least one number"
+            return "ERROR: Need at least one number"
 
         original = arr.copy()
         # call the recursive merge sort
@@ -399,24 +405,21 @@ class MergeSortStrategy(AlgorithmStrategy):
         mid = len(arr) // 2
         left_half = arr[:mid]
         right_half = arr[mid:]
-
-        # recursively sort both halves
         left_sorted = self._merge_sort(left_half, desc)
         right_sorted = self._merge_sort(right_half, desc) 
 
         # merge the sorted halves
         return self._merge(left_sorted, right_sorted, desc)
 
-    def _merge(self, left, right, desc):
-        # merge two sorted arrays into one
+    def _merge(self, left, right, desc): # merging two into one
         result = []
         left_idx = 0
         right_idx = 0
 
-        # compare elements from left and right arrays
+        # compare elements
         while left_idx < len(left) and right_idx < len(right):
             if desc:
-                # for descending, take larger element first
+                # for descending, take larger element 
                 if left[left_idx] >= right[right_idx]:
                     result.append(left[left_idx])
                     left_idx += 1
@@ -424,7 +427,7 @@ class MergeSortStrategy(AlgorithmStrategy):
                     result.append(right[right_idx])
                     right_idx += 1
             else:
-                # for ascending, take smaller element first
+                # for ascending, take smaller element 
                 if left[left_idx] <= right[right_idx]:
                     result.append(left[left_idx])
                     left_idx += 1
@@ -432,12 +435,10 @@ class MergeSortStrategy(AlgorithmStrategy):
                     result.append(right[right_idx])
                     right_idx += 1
 
-        # add any remaining elements from left array
+        # add any remaining elements from arrays
         while left_idx < len(left):
             result.append(left[left_idx])
             left_idx += 1
-
-        # add any remaining elements from right array
         while right_idx < len(right):
             result.append(right[right_idx])
             right_idx += 1
@@ -445,26 +446,26 @@ class MergeSortStrategy(AlgorithmStrategy):
         return result
     
 class CardShuffleStrategy(AlgorithmStrategy):
-    # shuffles a deck of cards
+
 
     def execute(self, input_data=None) -> str:
         # build a standard deck
         suits = ["Hearts", "Diamonds", "Clubs", "Spades"]
         ranks = ["A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"]
 
-        # make all 52 cards
+        # creating list for deck
         deck = []
         for suit in suits:
             for rank in ranks:
                 deck.append(f"{rank} of {suit}")
 
-        # shuffle using Fisher-Yates algorithm
+        # shuffle using Fisher-Yates algorithm : https://www.geeksforgeeks.org/shuffle-a-given-array-using-fisher-yates-shuffle-algorithm/
         # swap each card with a random card before it
         for i in range(len(deck) - 1, 0, -1):
             j = random.randint(0, i)
             deck[i], deck[j] = deck[j], deck[i]
 
-        # showing deck
+        
         result = "Shuffled Deck (52 cards):\n\n"
         for i in range(len(deck)):
             result += f"{i+1}. {deck[i]}\n"
@@ -478,14 +479,14 @@ class FactorialStrategy(AlgorithmStrategy):
         try:
             n = int(str(input_data).strip())
         except:
-            return "[ERROR] Please enter a valid integer."
+            return "ERROR: Please enter a valid integer."
 
         if n< 0:
-            return "[ERROR] Factorial not defined for negative numbers."
+            return "ERROR: Factorial not defined for negative numbers."
         
         # warnng if factorial gets too big/ speed consideration
         if n > 100:
-            return "[ERROR] Number too large (max 100)."
+            return "ERROR: Number too large (max 100)."
 
         result = self._factorial(n)
         return f"Factorial({n}) = {result}"
@@ -502,22 +503,22 @@ class FactorialStrategy(AlgorithmStrategy):
 
 
 class StatsSearchStrategy(AlgorithmStrategy):
-    # finds stats: range, median, mode, quartiles from array
+    # range, median, mode, quartiles from array
 
     def execute(self, input_data) -> str:
         try:
             nums_str = input_data.strip()
             arr = [float(x.strip()) for x in nums_str.split(",") if x.strip()]
         except:
-            return "[ERROR] Please enter numbers separated by commas"
+            return "ERROR: Please enter numbers separated by commas"
 
         if not arr:
-            return "[ERROR] Need at least one number"
+            return "ERROR: Need at least one number"
 
         # sort array
         sorted_arr = sorted(arr)
         
-        # calculate stats
+        # storing stats
         smallest = min(sorted_arr)
         largest = max(sorted_arr)
         range_val = largest - smallest
@@ -527,7 +528,7 @@ class StatsSearchStrategy(AlgorithmStrategy):
         q1 = self._find_q1(sorted_arr)
         q3 = self._find_q3(sorted_arr)
         
-        # format output
+        
         return f"""Statistics:
 
             Smallest: {smallest}
@@ -607,7 +608,7 @@ class PalindromeSubstringStrategy(AlgorithmStrategy):
         text = str(input_data).strip()
         
         if not text:
-            return "[ERROR] Please enter a string"
+            return "ERROR: Please enter a string"
 
         # memoization dict
         self.memo = {}
@@ -635,6 +636,7 @@ class PalindromeSubstringStrategy(AlgorithmStrategy):
     
 
 class RSAEncryptionStrategy(AlgorithmStrategy):
+# researched from: https://stackoverflow.com/questions/tagged/rsa
 
     def execute(self, input_data: str) -> str:
         if not isinstance(input_data, str):
@@ -724,7 +726,7 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         return cipher, n, d
 
     def _encrypt_message(self, message: str, e: int, n: int):
-        # using ord() to get ASCII value, then apply RSA: c = m^e mod n
+        # using ord() to get ASCII value, then applying c = m^e mod n
         cipher = []
         for ch in message:
             m = ord(ch)
@@ -756,12 +758,10 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         # phi is Euler's totient - needed to find d
         phi = (p-1) * (q-1)
 
-        # e is the public exponent - 65537 is standard
+
         # needs to be coprime with phi (gcd = 1)
         e = 65537
-
         if math.gcd(e, phi) != 1:
-            # fall back to finding a small one that works
             e = 3
             while math.gcd(e,phi) != 1:
                 e += 2
@@ -771,8 +771,8 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         return (e, n), (d, n)
 
     def _mod_inverse(self, a, m):
-         # extended euclidean algorithm
-        # from: https://www.geeksforgeeks.org/euclidean-algorithms-basic-and-extended/
+         #euclidean algorithm
+        # researched from: https://www.geeksforgeeks.org/euclidean-algorithms-basic-and-extended/
         m0 = m
         x0 = 0
         x1 = 1
@@ -791,8 +791,7 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
         return x1
 
     def _find_prime(self, min_val, max_val):
-        # trial division primality test
-        # adapted from: https://stackoverflow.com/questions/15285534/isprime-function-for-python-language
+        #  studied and adapted from: https://stackoverflow.com/questions/15285534/isprime-function-for-python-language
         while True:
             num = random.randint(min_val, max_val)
             if num % 2 == 0:
@@ -819,7 +818,7 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
 
 class AlgorithmFactory:
         # static factory method pattern
-        # adpated from: https://realpython.com/instance-class-and-static-methods-demystified/
+        # researched and adpated from: https://realpython.com/instance-class-and-static-methods-demystified/
     
     @staticmethod
     def create(algorithm_name):
@@ -830,7 +829,7 @@ class AlgorithmFactory:
             "Selection Sort": SelectionSortStrategy,
             "Bubble Sort": BubbleSortStrategy,
             "Merge Sort": MergeSortStrategy,
-            "Card Shuffe": CardShuffleStrategy,
+            "Card shuffle": CardShuffleStrategy,
             "Factorial (Recursion)": FactorialStrategy,
             "Stats search (Range, Median, Mode, IQF'S)": StatsSearchStrategy,
             "Palindrome Substring Counter": PalindromeSubstringStrategy
@@ -846,8 +845,7 @@ class AlgorithmFactory:
         
 
 class AlgorithmFacade:
-    # facade pattern - simplifies running algorithms
-    # merges factory and strategy
+    # simplifies running algorithms by merging factory and strategy
     
     @staticmethod
     def run(algorithm_name, user_input):
@@ -855,9 +853,8 @@ class AlgorithmFacade:
         algorithm = AlgorithmFactory.create(algorithm_name)
         
         if not algorithm:
-            return "[ERROR] Algorithm not found"
+            return "ERROR: Algorithm not found"
         
-        # run the algorithm
         # TODO: add validation here later?
         result = algorithm.execute(user_input)
         return result
