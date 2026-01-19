@@ -499,7 +499,7 @@ class MergeSortStrategy(AlgorithmStrategy):
 
         original = arr.copy()
         # call the recursive merge sort
-        sorted_arr = self._merge_sort(arr, desc)
+        sorted_arr = self.merge_sort(arr, desc)
 
         order = "Descending" if desc else "Ascending"
 
@@ -509,7 +509,7 @@ class MergeSortStrategy(AlgorithmStrategy):
             f"Sorted: {sorted_arr}"
         )
 
-    def _merge_sort(self, 
+    def merge_sort(self, 
                     arr:list[int], 
                     desc:bool
                     ) -> list[int]:
@@ -522,8 +522,8 @@ class MergeSortStrategy(AlgorithmStrategy):
         mid = len(arr) // 2
         left_half = arr[:mid]
         right_half = arr[mid:]
-        left_sorted = self._merge_sort(left_half, desc)
-        right_sorted = self._merge_sort(right_half, desc) 
+        left_sorted = self.merge_sort(left_half, desc)
+        right_sorted = self.merge_sort(right_half, desc) 
 
         # merge the sorted halves
         return self._merge(left_sorted, right_sorted, desc)
@@ -636,20 +636,17 @@ class StatsSearchStrategy(AlgorithmStrategy):
         if not arr:
             return "ERROR: Need at least one number"
 
-        # sort array
-        sorted_arr = sorted(arr)
-        
-        # storing stats
+        # sort array USING OWN MERGE SORT
+        sorted_arr = self.merge_sort(arr)
+
         smallest = min(sorted_arr)
         largest = max(sorted_arr)
         range_val = largest - smallest
-        
+
         median = self.find_median(sorted_arr)
         mode = self.find_mode(arr)
         q1 = self.find_q1(sorted_arr)
         q3 = self.find_q3(sorted_arr)
-        
-        
         return f"""Statistics:
 
             Smallest: {smallest}
@@ -659,7 +656,9 @@ class StatsSearchStrategy(AlgorithmStrategy):
             Mode: {mode}
             Q1 (1st Quartile): {q1}
             Q3 (3rd Quartile): {q3}"""
-    
+
+   
+
     def find_median(self, sorted_arr:list[int]) ->list[int]:
         # middle value
         n = len(sorted_arr)
@@ -686,11 +685,10 @@ class StatsSearchStrategy(AlgorithmStrategy):
         
         modes = [num for num, count in counts.items() if count == max_count]
         
-        # just in case if everything appears once, no mode
+        # just in case if everything appears once, no mode or vice versa
         if max_count == 1:
             return "No mode (all values appear once)"
         
-        # just in case multiple modes
         if len(modes) > 1:
             return f"Multiple modes: {modes}"
         
@@ -721,6 +719,37 @@ class StatsSearchStrategy(AlgorithmStrategy):
             upper_half = sorted_arr[mid+1:]
         
         return self.find_median(upper_half)
+    
+    ## changed to my own sort, forgot wasnt allowed to call on libraries##
+    #adapted from original merge sort
+    def merge_sort(self, arr):
+        if len(arr) <= 1:
+            return arr
+
+        mid = len(arr) // 2
+        left = self.merge_sort(arr[:mid])
+        right = self.merge_sort(arr[mid:])
+
+        return self._merge(left, right)
+
+    def _merge(self, left, right):
+        result = []
+        i = j = 0
+
+        while i < len(left) and j < len(right):
+            if left[i] <= right[j]:
+                result.append(left[i])
+                i += 1
+            else:
+                result.append(right[j])
+                j += 1
+
+        result.extend(left[i:])
+        result.extend(right[j:])
+        return result
+
+    
+
     
 class PalindromeSubstringStrategy(AlgorithmStrategy):
     # counts palindromic substrings using memoization
@@ -753,6 +782,7 @@ class PalindromeSubstringStrategy(AlgorithmStrategy):
         result = (s == s[::-1])
         self.memo[s] = result
         return result
+
 
     
 
