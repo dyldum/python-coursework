@@ -3,10 +3,29 @@ from tkinter import ttk,messagebox
 import math
 import random
 
+
 # TODO: main GUI window
 
 class MainPage(tk.Frame):
+    """
+    Main menu page displaying available algorithms.
+    
+    This frame shows the application title and a list of algorithm buttons.
+    When a button is clicked, it switches to the InputPage for that algorithm.
+    
+    Attributes:
+        controller (App): Reference to the main application for frame switching.
+    """
+     
     def __init__(self, parent_window, controller):
+        """
+        initialize mainPage frame.
+        
+        Args:
+            parent_window: The parent tkinter widget (container frame).
+            controller (App): The main application instance for navigation.
+        """
+
         super().__init__(parent_window, bg = "#E8EEFF")
         self.controller = controller
 
@@ -78,10 +97,37 @@ class MainPage(tk.Frame):
 
 
 class InputPage(tk.Frame):
-    def __init__ (self, parent_window, controller):
+    """
+    Input and output page for executing algorithms.
+    
+    This frame displays the selected algorithm's title and description,
+    provides an input field for user data, executes the algorithm,
+    and displays the results in a text output area.
+    
+    Attributes:
+        controller (App): Reference to the main application for  switching.
+        algorithm_name (str): Name of the selected algorithm.
+        title_label (tk.Label): Label displaying the algorithm name.
+        description_label (tk.Label): Label displaying algorithm description and usage.
+        input_box (tk.Entry): Entry field for user input.
+        output (tk.Text): Text widget displaying algorithm results.
+    """
+
+    def __init__ (self: any, parent_window: any,controller: "App") -> None:
+        """
+        Initialize InputPage frame.
+        
+        Sets up the UI components including title, description, input field,
+        run button, output text area, and back button.
+        
+        Args:
+            parent_window: The parent tkinter widget (container frame).
+            controller (App): The main application instance for navigation.
+        """
+        
         super().__init__(parent_window, bg = "#EEF3FF")
         self.controller = controller
-        self.algorithm_name = ""
+        self.algorithm_name: str = ""
 
         # visual aspects
         self.title_label= tk.Label(
@@ -157,14 +203,14 @@ class InputPage(tk.Frame):
         self.output.delete("1.0", tk.END)
         self.controller.show(MainPage)
 
-    def set_algorithm(self, algorithm_name):
+    def set_algorithm(self: any, algorithm_name: str):
         self.algorithm_name = algorithm_name
         self.title_label.config(text = algorithm_name)
         self.description_label.config(text = self.get_description(algorithm_name))
         self.input_box.delete(0,tk.END)
         self.output.delete("1.0",tk.END)
 
-    def get_description(self, algorithm):
+    def get_description(self: any, algorithm: str) ->str:
          
          # dummy descriptions for input page *TODO: exception handling and dont rely on user input 
         descriptions = {
@@ -221,8 +267,19 @@ class InputPage(tk.Frame):
         result = AlgorithmFacade.run(self.algorithm_name, user_input)
         self.output.insert("1.0", result)
 
-# uses MainPage and creates a container to switch frames to InputPage
+
 class App(tk.Tk):
+    """
+    Main application window for frame navigation.
+    
+    This class creates the main tkinter window and manages switching
+    between MainPage and InputPage. It uses a
+    container frame to hold all pages and raises them to the front.
+    
+    Attributes:
+        container (tk.Frame): Container frame holding all application pages.
+        frames (dict): Dictionary mapping frame classes to their instances.
+    """
     def __init__(self):
         super().__init__()
         self.title("Algorithm Workshop")
@@ -243,14 +300,40 @@ class App(tk.Tk):
 
 # base class for inhheritance
 class AlgorithmStrategy:
+    """
+    Abstract base class defining the strategy interface for algorithms.
+    
+    Design Pattern:
+        Strategy Pattern - defines a family of algorithms, encapsulates each one,
+        and makes them interchangeable.
+    """
     def execute(self, input_data):
+        """
+        Args:
+            input_data: The input data for the algorithm. Type and format
+                depend on the specific algorithm 
+
+        Returns:
+            str: A formatted string containing the algorithm's result 
+
+        Raises:
+            NotImplementedError: If a subclass does not implement this method.
+        
+        Example:
+            Subclasses should implement like:
+            >>> class BubbleSortStrategy(AlgorithmStrategy):
+            >>>     def execute(self, input_data):
+            >>>         # Process input and return sorted result
+            >>>         return "Sorted: [1, 2, 3, 4, 5]"
+        """
         raise NotImplementedError()
+
 
 # adapted this approach from: https://refactoring.guru/design-patterns/strategy/python/example
     
 class FibonacciDPStrategy(AlgorithmStrategy):
    
-    def execute(self, input_data) -> str:
+    def execute(self:any, input_data:any) -> str:
         # Validate input
         # using the bottom up approach
         try:
@@ -282,7 +365,7 @@ class FibonacciDPStrategy(AlgorithmStrategy):
 class SelectionSortStrategy(AlgorithmStrategy):
     # find smallest (or largest) and swap to front
 
-    def execute(self, input_data) -> str:
+    def execute(self, input_data: any) -> str:
         try:
             nums_str = input_data.strip().lower()
             
@@ -306,7 +389,7 @@ class SelectionSortStrategy(AlgorithmStrategy):
         # finding min or max
         for i in range(n):
             target_idx = i
-            for j in range(i + 1, n):
+            for j in range(i + 1,n):
                 if descending:
                     if arr[j] > arr[target_idx]:  # find max for descending
                         target_idx = j
@@ -326,7 +409,7 @@ class SelectionSortStrategy(AlgorithmStrategy):
 class BubbleSortStrategy(AlgorithmStrategy):
     # swap adjacent elements
 
-    def execute(self,input_data) -> str:
+    def execute(self,input_data:any) -> str:
         try:
             nums_str = input_data.strip().lower()
             
@@ -365,9 +448,39 @@ class BubbleSortStrategy(AlgorithmStrategy):
 
 
 class MergeSortStrategy(AlgorithmStrategy):
-    # divide and conquer approach
+    """
+    Merge Sort algorithm implementation using divide and conquer.
+    
+    Algorithm Overview:
+        1. Divide: Split array into two halves
+        2. Conquer: Recursively sort each half
+        3. Combine: Merge the sorted halves together
+    
+    Input Format:
+        - Numbers separated by commas
+        - Optional: add 'desc' or 'descending' for descending order
+        - Example: "7, 2, 5, 3, 9" or "7, 2, 5, 3, 9, desc"
+    """
 
-    def execute(self, input_data) -> str:
+
+    def execute(self, input_data:any) -> str:
+        """
+        Sort an array of numbers using merge sort.
+        Parses the input string to extract numbers and sort order preference,
+        then applies the merge sort algorithm recursively.
+        
+        Args:
+            input_data (any): String containing comma-separated numbers.
+                Can include 'desc' or 'descending' keyword for reverse order.
+        
+        Returns:
+            str: Formatted result showing:
+                - Sort order (Ascending/Descending)
+                - Original array
+                - Sorted array
+                Or error message if input is invalid.
+        
+        """
         try:
             nums_str = input_data.strip().lower()
 
@@ -396,9 +509,13 @@ class MergeSortStrategy(AlgorithmStrategy):
             f"Sorted: {sorted_arr}"
         )
 
-    def _merge_sort(self, arr, desc):
+    def _merge_sort(self, 
+                    arr:list[int], 
+                    desc:bool
+                    ) -> list[int]:
+    
         # base case  array with 1 element is already sorted
-        if len(arr) <= 1:
+        if len(arr) <=1:
             return arr
 
         # divide array into two halves
@@ -411,7 +528,11 @@ class MergeSortStrategy(AlgorithmStrategy):
         # merge the sorted halves
         return self._merge(left_sorted, right_sorted, desc)
 
-    def _merge(self, left, right, desc): # merging two into one
+    def _merge(self, left: list[int], 
+               right:list[int], 
+               desc:bool
+               )-> list[int]: # merging two into one
+        
         result = []
         left_idx = 0
         right_idx = 0
@@ -475,7 +596,7 @@ class CardShuffleStrategy(AlgorithmStrategy):
 class FactorialStrategy(AlgorithmStrategy):
     # recursive factorial 
   
-    def execute(self, input_data) -> str:
+    def execute(self, input_data:any) -> str:
         try:
             n = int(str(input_data).strip())
         except:
@@ -492,7 +613,7 @@ class FactorialStrategy(AlgorithmStrategy):
         return f"Factorial({n}) = {result}"
 
 
-    def _factorial(self, n):
+    def _factorial(self, n:int)->int:
         # base case 
         if n == 0 or n == 1:
             return 1
@@ -505,7 +626,7 @@ class FactorialStrategy(AlgorithmStrategy):
 class StatsSearchStrategy(AlgorithmStrategy):
     # range, median, mode, quartiles from array
 
-    def execute(self, input_data) -> str:
+    def execute(self, input_data:any) -> str:
         try:
             nums_str = input_data.strip()
             arr = [float(x.strip()) for x in nums_str.split(",") if x.strip()]
@@ -523,10 +644,10 @@ class StatsSearchStrategy(AlgorithmStrategy):
         largest = max(sorted_arr)
         range_val = largest - smallest
         
-        median = self._find_median(sorted_arr)
-        mode = self._find_mode(arr)
-        q1 = self._find_q1(sorted_arr)
-        q3 = self._find_q3(sorted_arr)
+        median = self.find_median(sorted_arr)
+        mode = self.find_mode(arr)
+        q1 = self.find_q1(sorted_arr)
+        q3 = self.find_q3(sorted_arr)
         
         
         return f"""Statistics:
@@ -539,7 +660,7 @@ class StatsSearchStrategy(AlgorithmStrategy):
             Q1 (1st Quartile): {q1}
             Q3 (3rd Quartile): {q3}"""
     
-    def _find_median(self, sorted_arr):
+    def find_median(self, sorted_arr:list[int]) ->list[int]:
         # middle value
         n = len(sorted_arr)
         mid = n // 2
@@ -551,7 +672,7 @@ class StatsSearchStrategy(AlgorithmStrategy):
             # taking middle
             return sorted_arr[mid]
 
-    def _find_mode(self, arr):
+    def find_mode(self, arr:list[int])-> int:
         # count how many times each number appears
         counts = {}
         for num in arr:
@@ -575,7 +696,7 @@ class StatsSearchStrategy(AlgorithmStrategy):
         
         return modes[0]
 
-    def _find_q1(self, sorted_arr):
+    def find_q1(self, sorted_arr):
         # Q1 is median of lower half
         n = len(sorted_arr)
         mid = n // 2
@@ -586,9 +707,9 @@ class StatsSearchStrategy(AlgorithmStrategy):
             # odd - lower half excludes middle
             lower_half = sorted_arr[:mid]
         
-        return self._find_median(lower_half)
+        return self.find_median(lower_half)
 
-    def _find_q3(self, sorted_arr):
+    def find_q3(self, sorted_arr:list[int]) ->int:
         # Q3 is median of upper half
         n = len(sorted_arr)
         mid = n // 2
@@ -599,12 +720,12 @@ class StatsSearchStrategy(AlgorithmStrategy):
             # odd - upper half excludes middle
             upper_half = sorted_arr[mid+1:]
         
-        return self._find_median(upper_half)
+        return self.find_median(upper_half)
     
 class PalindromeSubstringStrategy(AlgorithmStrategy):
     # counts palindromic substrings using memoization
 
-    def execute(self, input_data) -> str:
+    def execute(self, input_data:any) -> str:
         text = str(input_data).strip()
         
         if not text:
@@ -636,6 +757,36 @@ class PalindromeSubstringStrategy(AlgorithmStrategy):
     
 
 class RSAEncryptionStrategy(AlgorithmStrategy):
+    """
+    RSA encryption and decryption algorithm implementation.
+    
+    Implements the RSA public-key cryptosystem
+    Uses asymmetric key pairs
+    where the public key (e, n) encrypts and the private key (d, n) decrypts.
+    
+    Algorithm Overview:
+        - Generates two random prime numbers p and q
+        - Computes n= p * q(modulus for both keys)
+        - Computes φ(n)= (p-1)(q-1) (Euler's totient)
+        - Selects public exponent e (commonly 65537)
+        - Computes private exponent d (modular inverse of e mod φ(n))
+        - Encryption: c= m^e mod n
+        - Decryption: m= c^d mod n
+
+        Args:
+            input_data (str): Input string in one of two formats:
+                - "enc:message" for encryption
+                - "dec:cipher;n=<n>;d=<d>" for decryption
+        
+        Returns:
+            str: Formatted result containing:
+                - For encryption: plaintext, ciphertext, public/private keys,
+                  and decryption command
+                - For decryption: recovered plaintext
+                - Error message if input is invalid or operation fails
+
+    
+    """
 # researched from: https://stackoverflow.com/questions/tagged/rsa
 
     def execute(self, input_data: str) -> str:
@@ -817,12 +968,33 @@ class RSAEncryptionStrategy(AlgorithmStrategy):
     
 
 class AlgorithmFactory:
-        # static factory method pattern
+    """
+    Factory class for creating algorithm strategy instances.
+    
+    Implements the Factory design pattern to encapsulate the creation
+    of algorithm objects. Maps algorithm names to their corresponding
+    strategy classes and returns instances on demand. seperates gui and algos
+ 
+    """
         # researched and adpated from: https://realpython.com/instance-class-and-static-methods-demystified/
     
     @staticmethod
     def create(algorithm_name):
-        # map algorithm names to their classes
+        """
+       
+        Args:
+            algorithm_name (str): The name of the algorithm to create.
+                Must match one of the keys in the algorithms dictionary.
+        
+        Returns:
+            AlgorithmStrategy: An instance of the requested algorithm class,
+                or None if the algorithm name is not found.
+        
+        Example:
+            >>> algo = AlgorithmFactory.create("Bubble Sort")
+            >>> result = algo.execute("5,2,8,1")
+        """
+
         algorithms = {
             "RSA Encryption / Decryption": RSAEncryptionStrategy,
             "Fibonacci (Dynamic Programming)": FibonacciDPStrategy,
@@ -845,10 +1017,33 @@ class AlgorithmFactory:
         
 
 class AlgorithmFacade:
-    # simplifies running algorithms by merging factory and strategy
+    """
+    Facade class provides simplified interface for algorithm execution.
+    
+    The facade combines the AlgorithmFactory (for creation) and
+    AlgorithmStrategy (for execution) into one efficient interface.
+    """
     
     @staticmethod
     def run(algorithm_name, user_input):
+        """
+        Args:
+            algorithm_name (str): The name of the algorithm to run.
+                Must match one of the algorithms supported by AlgorithmFactory.
+            user_input (str): The input data to pass to the algorithm.
+                Format depends on the specific algorithm requirements.
+        
+        Returns:
+            str: The result of the algorithm execution, or an error message
+                if the algorithm is not found.
+        
+        Example:
+            >>> result = AlgorithmFacade.run("Bubble Sort", "5,2,8,1")
+            >>> print(result)
+            Bubble Sort (Ascending)
+            Original: [5, 2, 8, 1]
+            Sorted: [1, 2, 5, 8]
+        """
         # pull from factory
         algorithm = AlgorithmFactory.create(algorithm_name)
         
@@ -860,7 +1055,7 @@ class AlgorithmFacade:
         return result
 
 
-# runs the app
+
 if __name__ == "__main__":
     app = App()
     app.mainloop()
